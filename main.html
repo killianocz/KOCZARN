@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>KØCZΛRN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.cdnfonts.com/css/iceland-winterstorm');
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+:root { --red:#ff1010; --red2:#800000; --bg:#000; }
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+html,body {
+    width:100%; min-height:100%;
+    background:var(--bg); cursor:none;
+    font-family:'Iceland Winterstorm',serif;
+    color:#fff; overflow-x:hidden;
+}
+body::before {
+    content:''; position:fixed; inset:0;
+    background:radial-gradient(ellipse 90% 55% at 50% 0%,#130000 0%,#000 70%);
+    z-index:0; pointer-events:none;
+}
+
+/* ══ HEADER ══ */
+#header {
+    position:relative; z-index:10;
+    text-align:center; padding:64px 20px 44px;
+}
+#site-title {
+    font-size:clamp(38px,8vw,76px); letter-spacing:14px; color:#fff;
+    text-shadow:0 0 14px var(--red),0 0 32px var(--red),0 0 70px var(--red2);
+    display:inline-block; cursor:none;
+    opacity:0; transition:opacity 1s ease, text-shadow 0.4s ease;
+}
+#site-sub {
+    font-size:clamp(10px,1.4vw,13px); letter-spacing:7px;
+    color:rgba(200,200,200,0.75); margin-top:12px; text-transform:uppercase;
+    font-family:'Share Tech Mono',monospace;
+    opacity:0; transition:opacity 0.8s ease;
+}
+.header-line {
+    height:1px;
+    background:linear-gradient(90deg,transparent,var(--red),transparent);
+    margin:20px auto 0; width:0;
+    transition:width 0.7s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ══ GRID — 3 colonnes propres ══ */
+#grid {
+    position:relative; z-index:10;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px; max-width:1060px;
+    margin:0 auto; padding:16px 28px 80px;
+    overflow:visible;
+}
+@media(max-width:820px){ #grid{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:500px){ #grid{grid-template-columns:1fr;} }
+
+/* ══ CARD ══ */
+.card {
+    background:rgba(12,1,1,0.94);
+    border:1px solid rgba(255,0,0,0.14);
+    border-radius:14px; padding:28px 24px 24px;
+    cursor:none; position:relative; overflow:hidden;
+    box-shadow:0 2px 18px rgba(0,0,0,0.85),0 0 0 1px rgba(255,0,0,0.05),0 0 20px rgba(255,0,0,0.04);
+    z-index:1; opacity:0;
+    transform:translateY(22px) scale(0.96);
+    transition:opacity .5s ease,transform .42s cubic-bezier(0.22,1,0.36,1),
+               border-color .26s,box-shadow .26s,background .26s;
+}
+.card.visible { opacity:1; transform:translateY(0) scale(1); }
+.card.near {
+    border-color:rgba(255,0,0,0.28);
+    box-shadow:0 8px 30px rgba(255,0,0,0.10),0 0 22px rgba(255,0,0,0.06);
+    transform:translateY(-5px) scale(1.022); z-index:4;
+}
+.card:hover {
+    background:rgba(24,3,3,0.99);
+    border-color:rgba(255,0,0,0.65);
+    box-shadow:0 14px 42px rgba(255,0,0,0.16),0 0 30px rgba(255,0,0,0.08);
+    transform:translateY(-10px) scale(1.05); z-index:10;
+}
+.card::before {
+    content:''; position:absolute; top:0; left:-100%;
+    width:100%; height:1px;
+    background:linear-gradient(90deg,transparent,var(--red),transparent);
+    transition:left .40s ease;
+}
+.card:hover::before { left:0; }
+
+.card-num {
+    position:absolute; top:12px; right:15px;
+    font-family:'Share Tech Mono',monospace;
+    font-size:9px; color:rgba(255,0,0,0.38); letter-spacing:2px;
+}
+.card-icon {
+    width:26px; height:26px; margin-bottom:14px; display:block;
+    opacity:0.40; transition:transform .28s cubic-bezier(0.22,1,0.36,1),opacity .28s;
+}
+.card:hover .card-icon { transform:scale(1.12) translateY(-2px); opacity:0.80; }
+
+.card-title {
+    font-size:clamp(16px,2.2vw,22px); letter-spacing:5px; color:#fff;
+    text-transform:uppercase; line-height:1.1; margin-bottom:8px;
+    transition:text-shadow .26s;
+}
+.card:hover .card-title {
+    text-shadow:0 0 10px rgba(255,70,70,0.60),0 0 26px rgba(255,0,0,0.30);
+}
+.card-latin {
+    font-size:9px; letter-spacing:3px; color:rgba(255,110,110,0.72);
+    text-transform:lowercase; margin-bottom:14px;
+    font-family:'Share Tech Mono',monospace; transition:color .26s;
+}
+.card:hover .card-latin { color:rgba(255,130,130,0.95); }
+
+.card-status {
+    display:inline-block; font-size:8px; letter-spacing:3px;
+    padding:3px 10px; border:1px solid; border-radius:20px;
+    text-transform:uppercase; font-family:'Share Tech Mono',monospace;
+    transition:border-color .26s,box-shadow .26s,color .26s;
+}
+.card-status.open { border-color:rgba(255,0,0,0.38); color:rgba(255,100,100,0.88); }
+.card-status.soon { border-color:rgba(255,255,255,0.07); color:rgba(255,255,255,0.20); }
+.card:hover .card-status.open {
+    border-color:rgba(255,0,0,0.80); color:#ff3c3c;
+    box-shadow:0 0 9px rgba(255,0,0,0.20);
+}
+
+/* ══ MODAL ══ */
+#overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0);
+    z-index:200; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; transition:background .32s;
+}
+#overlay.open { background:rgba(0,0,0,0.90); pointer-events:all; }
+#modal {
+    background:rgba(4,0,0,0.97);
+    border:1px solid rgba(255,0,0,0.14);
+    border-radius:16px; padding:40px 40px 36px;
+    max-width:780px; width:94%; position:relative;
+    box-shadow:0 0 50px rgba(255,0,0,0.07),inset 0 0 28px rgba(255,0,0,0.03);
+    transform:scale(0.90) translateY(16px); opacity:0;
+    transition:transform .40s cubic-bezier(0.22,1,0.36,1),opacity .30s;
+    max-height:88vh; overflow-y:auto;
+}
+#modal::-webkit-scrollbar { width:2px; }
+#modal::-webkit-scrollbar-thumb { background:rgba(255,0,0,0.22); }
+#overlay.open #modal { transform:scale(1) translateY(0); opacity:1; }
+#modal-close {
+    position:absolute; top:14px; right:17px;
+    font-size:17px; color:rgba(255,255,255,0.20); cursor:none;
+    transition:color .18s; line-height:1;
+}
+#modal-close:hover { color:var(--red); }
+#modal-icon { margin-bottom:11px; display:block; opacity:0.65; }
+#modal-icon svg { width:30px; height:30px; }
+#modal-title {
+    font-size:clamp(21px,4.5vw,34px); letter-spacing:7px; color:#fff;
+    text-shadow:0 0 9px var(--red),0 0 20px var(--red2); margin-bottom:5px;
+}
+#modal-latin {
+    font-size:10px; letter-spacing:3px; color:rgba(255,80,80,0.65);
+    font-family:'Share Tech Mono',monospace; margin-bottom:18px;
+}
+.modal-line {
+    width:100%; height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,0,0,0.24),transparent);
+    margin-bottom:18px;
+}
+#modal-body {
+    font-family:'Share Tech Mono',monospace;
+    font-size:12px; line-height:1.9; color:rgba(215,215,215,0.85);
+}
+
+/* ══ CONTACT ══ */
+.tag-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; }
+.tag {
+    display:flex; align-items:center; gap:10px; padding:10px 18px;
+    border:1px solid rgba(255,0,0,0.14); border-radius:8px;
+    font-size:12px; letter-spacing:2px; color:rgba(255,255,255,0.58);
+    transition:border-color .20s,color .20s,box-shadow .20s,background .20s;
+    cursor:none; text-decoration:none;
+}
+.tag:hover {
+    border-color:rgba(255,0,0,0.50); color:#fff;
+    background:rgba(255,0,0,0.04); box-shadow:0 0 14px rgba(255,0,0,0.10);
+}
+.tag svg { width:17px; height:17px; flex-shrink:0; }
+
+/* ══ PASSIONS ══ */
+.passion-tag {
+    display:inline-block; padding:5px 14px;
+    border:1px solid rgba(255,255,255,0.08); border-radius:20px;
+    font-size:11px; letter-spacing:3px; color:rgba(195,195,195,0.48); margin:4px;
+}
+
+/* ══ GAME ══ */
+.game-section-title {
+    font-size:8px; letter-spacing:5px; color:rgba(255,45,45,0.45);
+    margin-bottom:7px; margin-top:5px;
+}
+.game-list { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+.game-tag {
+    display:inline-block; padding:5px 11px;
+    border:1px solid rgba(255,0,0,0.13); border-radius:6px;
+    font-size:10px; letter-spacing:1.5px; color:rgba(205,185,185,0.58);
+    text-decoration:none; cursor:none;
+    transition:border-color .18s,color .18s,background .18s;
+}
+.game-tag:hover {
+    border-color:rgba(255,0,0,0.50); color:rgba(255,165,165,0.95);
+    background:rgba(255,0,0,0.04);
+}
+.goat-label {
+    font-size:7px; letter-spacing:2px; color:rgba(255,170,35,0.68);
+    border:1px solid rgba(255,170,35,0.26); border-radius:8px;
+    padding:1px 6px; margin-left:5px; vertical-align:middle; white-space:nowrap;
+}
+
+/* ══ GALLERY ══ */
+#vtt-gallery-header { display:flex; align-items:center; margin-bottom:15px; }
+#vtt-gallery-title {
+    font-size:10px; letter-spacing:5px; color:rgba(255,65,65,0.45); text-transform:uppercase;
+}
+#vtt-gallery-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;           /* ~5mm de séparation entre chaque image */
+    max-height: 520px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+#vtt-gallery-grid::-webkit-scrollbar { width:2px; }
+#vtt-gallery-grid::-webkit-scrollbar-thumb { background:rgba(255,0,0,0.22); }
+
+.vtt-img-wrap {
+    position: relative;
+    width: 100%;
+    border-radius: 7px;
+    overflow: hidden;
+    border: 1px solid rgba(255,0,0,0.13);
+    cursor: none;
+    transition: border-color .20s, box-shadow .20s;
+    /* Pas de height fixe — l'image garde ses proportions naturelles */
+    flex-shrink: 0;
+}
+.vtt-img-wrap:hover {
+    border-color: rgba(255,0,0,0.48);
+    box-shadow: 0 3px 16px rgba(255,0,0,0.10);
+}
+.vtt-img-wrap img {
+    /* Rendu natif — aucune compression, aucun recadrage */
+    width: 100%;
+    height: auto;       /* hauteur naturelle de l'image */
+    display: block;
+    object-fit: unset;  /* pas de recadrage */
+    image-rendering: high-quality;
+    -webkit-font-smoothing: antialiased;
+}
+/* Hint clic */
+.vtt-img-wrap::after {
+    content: '⤢';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    color: rgba(255,255,255,0);
+    background: rgba(0,0,0,0);
+    pointer-events: none;
+    transition: color .18s, background .18s;
+}
+.vtt-img-wrap:hover::after {
+    color: rgba(255,255,255,0.55);
+    background: rgba(0,0,0,0.22);
+}
+#vtt-empty {
+    font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.16);
+    text-align:center; padding:28px 0; display:none;
+}
+
+/* ══ LIGHTBOX ══ */
+#lightbox {
+    position:fixed; inset:0; background:rgba(0,0,0,0.97);
+    z-index:500; display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .24s; cursor:none;
+}
+#lightbox.open { opacity:1; pointer-events:all; }
+
+#lightbox-img {
+    /* Rendu natif pleine résolution */
+    max-width:88vw; max-height:86vh;
+    width:auto; height:auto; display:block;
+    border-radius:6px; border:1px solid rgba(255,0,0,0.16);
+    box-shadow:0 0 80px rgba(0,0,0,0.9),0 0 30px rgba(255,0,0,0.04);
+    object-fit:contain; image-rendering:high-quality;
+    cursor:none; user-select:none; -webkit-user-drag:none;
+}
+/* pas de fade — swap instantané */
+
+/* Flèches de navigation — piliers verticaux fins, bien visibles */
+.lb-arrow {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    width: 44px; height: 110px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 22px;
+    background: rgba(0,0,0,0.55);
+    color: rgba(255,255,255,0.60);
+    font-size: 28px;
+    cursor: none; z-index: 502; user-select: none;
+    transition: border-color .18s, color .18s, background .18s, box-shadow .18s;
+    font-family: 'Share Tech Mono', monospace; line-height: 1;
+}
+.lb-arrow:hover {
+    border-color: rgba(255,30,30,0.60);
+    color: rgba(255,255,255,0.95);
+    background: rgba(20,0,0,0.75);
+    box-shadow: 0 0 18px rgba(255,0,0,0.15);
+}
+#lightbox-prev { left: 16px; }
+#lightbox-next { right: 16px; }
+
+/* Croix fermer */
+#lightbox-close {
+    position:fixed; top:18px; right:22px;
+    width:36px; height:36px;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid rgba(255,255,255,0.09);
+    border-radius:50%; background:rgba(0,0,0,0.55);
+    color:rgba(255,255,255,0.28); font-size:13px;
+    cursor:none; z-index:502;
+    transition:border-color .18s,color .18s,background .18s;
+    font-family:'Share Tech Mono',monospace;
+}
+#lightbox-close:hover {
+    border-color:rgba(255,0,0,0.55); color:rgba(255,70,70,0.90);
+    background:rgba(28,0,0,0.70);
+}
+#lightbox-counter {
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%);
+    font-family:'Share Tech Mono',monospace;
+    font-size:10px; letter-spacing:4px; color:rgba(255,255,255,0.18);
+    user-select:none;
+}
+
+/* ══ TRAÎNÉE CURSEUR ══ */
+/* ══ CURSEUR — z-index max, partout ══ */
+#cursor-ring {
+    position:fixed; top:0; left:0;
+    width:24px; height:24px; border-radius:50%;
+    border:1.5px solid rgba(255,255,255,0.72);
+    pointer-events:none; z-index:9999;
+    box-shadow:0 0 5px rgba(255,255,255,0.15);
+    will-change:transform; transition:border-color .16s,box-shadow .16s;
+}
+#cursor-dot {
+    position:fixed; top:0; left:0;
+    width:5px; height:5px; border-radius:50%;
+    background:#fff;
+    pointer-events:none; z-index:9999;
+    box-shadow:
+        0 0 4px #fff,
+        0 0 10px #fff,
+        0 0 22px rgba(255,255,255,0.80),
+        0 0 40px rgba(255,255,255,0.35);
+    will-change:transform;
+}
+</style>
+</head>
+<body>
+
+<header id="header">
+    <div id="site-title">KØCZΛRN</div>
+    <div id="site-sub">navigatio — obscurae</div>
+    <div class="header-line"></div>
+</header>
+
+<div id="grid"></div>
+
+<div id="overlay">
+    <div id="modal">
+        <span id="modal-close">✕</span>
+        <span id="modal-icon"></span>
+        <div id="modal-title"></div>
+        <div id="modal-latin"></div>
+        <div class="modal-line"></div>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<div id="lightbox">
+    <div id="lightbox-close">✕</div>
+    <div class="lb-arrow" id="lightbox-prev">&#8249;</div>
+    <img id="lightbox-img" src="" alt="" draggable="false"/>
+    <div class="lb-arrow" id="lightbox-next">&#8250;</div>
+    <div id="lightbox-counter"></div>
+</div>
+
+<canvas id="smoke-canvas"></canvas>
+<div id="cursor-ring"></div>
+<div id="cursor-dot"></div>
+
+<script src="./images.js"></script>
+<script>
+/* ══ ICONS ══ */
+const ICONS = {
+    eye:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+    gear:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+    bike:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5L5.5 14l1-8h8l2.5 3.5"/><path d="M15 6l-3 5.5h-4"/></svg>`,
+    wrench:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
+    ctrl:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>`,
+    at:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>`,
+    car:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h11l5 5v5h-2M5 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0zm12 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0z"/><path d="M3 9h11"/></svg>`,
+};
+
+/* ══ CARDS ══ */
+const cards = [
+    {
+        id:'koczarn', title:'KØCZΛRN', glitch:true,
+        latin:'rex — obscurae', iconKey:'eye', status:'open', num:'01',
+        body(){
+            return `<p style="margin-bottom:12px;color:rgba(255,255,255,0.48);font-size:12px;letter-spacing:2px;line-height:1.9">
+                Killian Oczko — dit Koczarn.<br>Développeur, créateur, rex de l'ombre.</p>
+            <p style="color:rgba(200,200,200,0.30);font-size:11px;letter-spacing:1.5px;line-height:2.1">
+                Ce site est mon espace.<br>Un coin du web taillé dans le noir.</p>`;
+        }
+    },
+    {
+        id:'passions', title:'PASSIONS',
+        latin:'cor — cordis — mei', iconKey:'gear', status:'open', num:'02',
+        body(){
+            return `<div style="display:flex;flex-wrap:wrap;gap:8px">
+                ${['🚗 Voiture','🚵 VTT','🔧 Mécanique','💻 Programmation','🎮 Game','🖥 PC','✏️ Dessin']
+                  .map(p=>`<span class="passion-tag">${p}</span>`).join('')}
+            </div>`;
+        }
+    },
+    {
+        id:'voiture', title:'VOITURE',
+        latin:'velocitas — et — furor', iconKey:'car', status:'open', num:'07',
+        isGallery:true, galleryKey:'VOITURE', body(){ return ''; }
+    },
+    {
+        id:'contact', title:'CONTACT',
+        latin:'nexus — inter — nos', iconKey:'at', status:'open', num:'03',
+        body(){
+            return `<div class="tag-row">
+                <a class="tag" href="https://www.snapchat.com/add/killian.oczko" target="_blank">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17"><path d="M12.166.006C9.579.006 6.508 1.252 5.077 4.022c-.623 1.215-.755 2.602-.755 3.913v.967c-.323.195-.7.29-1.07.29-.318 0-.614-.07-.895-.196l-.24-.109-.236.126c-.143.076-.287.184-.287.37 0 .34.371.632.847.804.086.03.18.059.276.085-.056.15-.125.29-.236.388-.245.217-.614.296-.92.296-.21 0-.407-.04-.555-.108l-.283-.135-.195.264C.405 11.206.25 11.6.25 12c0 .602.39 1.06.857 1.348.463.285 1.017.42 1.556.49.13.506.46 1.578 1.334 2.455.573.574 1.27.937 2.047 1.154-.34.44-.91.72-1.621.72-.256 0-.502-.04-.741-.12l-.366-.123-.205.336c-.127.208-.19.436-.19.662 0 .717.614 1.294 1.37 1.294.33 0 .663-.11.95-.316.478.83 1.247 1.518 2.36 2.003C8.16 22.1 9.355 22.49 12 22.49c2.645 0 3.84-.39 5.399-1.087 1.113-.485 1.882-1.173 2.36-2.003.287.206.62.316.95.316.756 0 1.37-.577 1.37-1.294 0-.226-.063-.454-.19-.662l-.205-.336-.366.123c-.239.08-.485.12-.741.12-.711 0-1.281-.28-1.621-.72.777-.217 1.474-.58 2.047-1.154.874-.877 1.204-1.949 1.334-2.455.539-.07 1.093-.205 1.556-.49.467-.288.857-.746.857-1.348 0-.4-.155-.794-.477-1.024l-.195-.264-.283.135c-.148.068-.345.108-.555.108-.306 0-.675-.079-.92-.296-.111-.098-.18-.238-.236-.388.096-.026.19-.055.276-.085.476-.172.847-.464.847-.804 0-.186-.144-.294-.287-.37l-.236-.126-.24.109c-.281.126-.577.196-.895.196-.37 0-.747-.095-1.07-.29v-.967c0-1.311-.132-2.698-.755-3.913C17.492 1.252 14.421.006 11.834.006h.332z"/></svg>
+                    killian.oczko
+                </a>
+                <a class="tag" href="https://www.instagram.com/killian.oczkowski" target="_blank">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="17" height="17"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-linecap="round"/></svg>
+                    killian.oczkowski
+                </a>
+                <span class="tag">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17"><path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026c.462-.62.874-1.275 1.226-1.963.021-.04.001-.088-.041-.104a13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z"/></svg>
+                    killocz
+                </span>
+            </div>`;
+        }
+    },
+    {
+        id:'vtt', title:'VTT',
+        latin:'in — silvis — liber', iconKey:'bike', status:'open', num:'04',
+        isGallery:true, galleryKey:'VTT', body(){ return ''; }
+    },
+    {
+        id:'mechanique', title:'MÉCANIQUE',
+        latin:'ferro — et — igne', iconKey:'wrench', status:'soon', num:'05',
+        body(){ return `<p style="color:rgba(200,200,200,0.22);letter-spacing:2px;font-size:11px">[ bientôt disponible ]</p>`; }
+    },
+    {
+        id:'game', title:'GAME',
+        latin:'in — ludum — perpetuum', iconKey:'ctrl', status:'open', num:'06',
+        body(){
+            const s=(url,name,goat)=>`<a class="game-tag" href="${url}" target="_blank">${name}${goat?`<span class="goat-label">GOAT</span>`:''}</a>`;
+            return `
+            <div class="game-section-title">— COURSE —</div>
+            <div class="game-list">
+                ${s('https://store.steampowered.com/app/1551360','Forza Horizon 5')}
+                ${s('https://store.steampowered.com/app/1293830','Forza Horizon 4')}
+                ${s('https://store.steampowered.com/app/244210','Assetto Corsa')}
+                ${s('https://store.steampowered.com/app/284160','BeamNG.drive')}
+                ${s('https://www.ea.com/fr-fr/games/need-for-speed/need-for-speed-most-wanted','NFS Most Wanted 2005',true)}
+                ${s('https://store.steampowered.com/app/214230','NFS Most Wanted 2012')}
+                ${s('https://store.steampowered.com/app/48190','NFS Hot Pursuit')}
+                ${s('https://store.steampowered.com/app/1262560','NFS Payback')}
+                ${s('https://store.steampowered.com/app/1222680','NFS Heat')}
+            </div>
+            <div class="game-section-title">— COMBAT —</div>
+            <div class="game-list">
+                ${s('https://store.steampowered.com/app/1962663','CoD MW3')}
+                ${s('https://store.steampowered.com/app/476600','CoD WW2')}
+                ${s('https://store.steampowered.com/app/202990','CoD BO II')}
+                ${s('https://store.steampowered.com/app/311210','CoD BO III')}
+                ${s('https://store.steampowered.com/app/1107600','CoD BO IV')}
+                ${s('https://store.steampowered.com/app/1938090','CoD BO CW')}
+                ${s('https://store.steampowered.com/app/2933620','CoD BO VI')}
+                ${s('https://store.steampowered.com/app/976310','MK 11')}
+                ${s('https://store.steampowered.com/app/307780','MK X')}
+            </div>
+            <div class="game-section-title">— SURVIE —</div>
+            <div class="game-list">
+                ${s('https://store.steampowered.com/app/242760','The Forest')}
+                ${s('https://store.steampowered.com/app/1326470','Sons of the Forest')}
+            </div>`;
+        }
+    },
+];
+
+/* ══ BUILD GRID ══ */
+const gridEl = document.getElementById('grid');
+cards.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    const titleHtml = card.glitch
+        ? `<div class="card-title glitch-word" data-text="${card.title}">${card.title}</div>`
+        : `<div class="card-title">${card.title}</div>`;
+    el.innerHTML = `
+        <span class="card-num">${card.num}</span>
+        <span class="card-icon">${ICONS[card.iconKey]||''}</span>
+        ${titleHtml}
+        <div class="card-latin">${card.latin}</div>
+        <span class="card-status ${card.status==='open'?'open':'soon'}">${card.status==='open'?'accéder':'soon'}</span>`;
+    el.addEventListener('click',()=>openModal(card));
+    gridEl.appendChild(el);
+});
+
+/* ══ INTRO ══ */
+(function runIntro(){
+    const title   = document.getElementById('site-title');
+    const sub     = document.getElementById('site-sub');
+    const line    = document.querySelector('.header-line');
+    const cardEls = [...document.querySelectorAll('.card')];
+    setTimeout(()=>{ title.style.opacity='1'; }, 120);
+    setTimeout(()=>{ sub.style.opacity='1'; }, 800);
+    setTimeout(()=>{ line.style.width='75vw'; }, 1400);
+    setTimeout(()=>{
+        line.style.transition='width 0.85s cubic-bezier(0.4,0,0.2,1)';
+        line.style.width='200px';
+    }, 2100);
+    cardEls.forEach((el,i)=>{
+        const delay = 2300 + Math.floor(i/2)*300 + (i%2)*155;
+        setTimeout(()=>{ el.classList.add('visible'); }, delay);
+    });
+})();
+
+/* ══ SCROLL — titre qui brille ══ */
+window.addEventListener('scroll', () => {
+    const t = document.getElementById('site-title');
+    const ratio = Math.min(window.scrollY / 180, 1);
+    if(ratio > 0.05){
+        const i = Math.round(ratio * 100);
+        t.style.textShadow = `
+            0 0 ${14 + i*0.6}px var(--red),
+            0 0 ${32 + i*1.2}px var(--red),
+            0 0 ${70 + i*2}px var(--red2),
+            0 0 ${i*1.8}px rgba(255,180,180,${0.06 + ratio*0.18})`;
+    } else {
+        t.style.textShadow = '0 0 14px var(--red),0 0 32px var(--red),0 0 70px var(--red2)';
+    }
+}, { passive: true });
+
+/* ══ GLITCH ══ */
+const GC=['Ø','Λ','Я','Ƶ','†','Σ','Ξ','Ω','§','_','|'];
+function glitchText(el,orig){
+    const a=orig.split('');
+    a[Math.floor(Math.random()*a.length)]=GC[Math.floor(Math.random()*GC.length)];
+    el.textContent=a.join('');
+    setTimeout(()=>{ el.textContent=orig; },75+Math.random()*130);
+}
+function scheduleGlitch(el,orig){
+    setTimeout(()=>{ glitchText(el,orig); scheduleGlitch(el,orig); },2500+Math.random()*4000);
+}
+scheduleGlitch(document.getElementById('site-title'),'KØCZΛRN');
+document.querySelectorAll('.glitch-word').forEach(el=>scheduleGlitch(el,el.dataset.text));
+
+/* ══ MODAL ══ */
+const overlay=document.getElementById('overlay');
+const modalClose=document.getElementById('modal-close');
+function openModal(card){
+    document.getElementById('modal-icon').innerHTML    = ICONS[card.iconKey]||'';
+    document.getElementById('modal-title').textContent = card.title;
+    document.getElementById('modal-latin').textContent = card.latin;
+    if(card.isGallery){
+        document.getElementById('modal-body').innerHTML = buildGalleryPanel(card.galleryKey);
+        overlay.classList.add('open');
+        loadGallery(card.galleryKey);
+    } else {
+        document.getElementById('modal-body').innerHTML = card.body();
+        overlay.classList.add('open');
+    }
+}
+function closeModal(){ overlay.classList.remove('open'); }
+modalClose.addEventListener('click',closeModal);
+overlay.addEventListener('click',e=>{ if(e.target===overlay) closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!lbEl.classList.contains('open')) closeModal(); });
+
+/* ══ GALLERY ══ */
+function buildGalleryPanel(key){
+    return `<div>
+        <div id="vtt-gallery-header"><span id="vtt-gallery-title">— GALERIE ${key}</span></div>
+        <div id="vtt-gallery-grid"></div>
+        <div id="vtt-empty">Aucune photo dans ./images/${key}/</div>
+    </div>`;
+}
+let _curGallery = [];
+function loadGallery(key){
+    const g=document.getElementById('vtt-gallery-grid');
+    const empty=document.getElementById('vtt-empty');
+    if(!g) return;
+    const files=((window.GALLERY_IMAGES||{})[key])||[];
+    _curGallery=files.map(f=>`./images/${key}/${f}`);
+    if(!files.length){ empty.style.display='block'; return; }
+    empty.style.display='none';
+    files.forEach((filename,idx)=>{
+        const wrap=document.createElement('div'); wrap.className='vtt-img-wrap';
+        const img=document.createElement('img');
+        img.src=`./images/${key}/${filename}`;
+        img.alt=filename; img.loading='lazy'; img.decoding='async';
+        wrap.appendChild(img);
+        wrap.addEventListener('click',()=>openLightbox(idx));
+        g.appendChild(wrap);
+    });
+}
+
+/* ══ LIGHTBOX ══ */
+const lbEl     =document.getElementById('lightbox');
+const lbImg    =document.getElementById('lightbox-img');
+const lbClose  =document.getElementById('lightbox-close');
+const lbPrev   =document.getElementById('lightbox-prev');
+const lbNext   =document.getElementById('lightbox-next');
+const lbCounter=document.getElementById('lightbox-counter');
+let _lbIdx=0;
+
+function openLightbox(idx){ _lbIdx=idx; lbShow(); lbEl.classList.add('open'); }
+function lbShow(){
+    lbImg.src=_curGallery[_lbIdx];
+    lbCounter.textContent=`${_lbIdx+1}  /  ${_curGallery.length}`;
+    const show=_curGallery.length>1;
+    lbPrev.style.display=show?'flex':'none';
+    lbNext.style.display=show?'flex':'none';
+}
+function lbHide(){ lbEl.classList.remove('open'); }
+lbClose.addEventListener('click',lbHide);
+lbEl.addEventListener('click',e=>{ if(e.target===lbEl) lbHide(); });
+lbPrev.addEventListener('click',e=>{ e.stopPropagation(); _lbIdx=(_lbIdx-1+_curGallery.length)%_curGallery.length; lbShow(); });
+lbNext.addEventListener('click',e=>{ e.stopPropagation(); _lbIdx=(_lbIdx+1)%_curGallery.length; lbShow(); });
+document.addEventListener('keydown',e=>{
+    if(!lbEl.classList.contains('open')) return;
+    if(e.key==='Escape') lbHide();
+    if(e.key==='ArrowLeft')  { _lbIdx=(_lbIdx-1+_curGallery.length)%_curGallery.length; lbShow(); }
+    if(e.key==='ArrowRight') { _lbIdx=(_lbIdx+1)%_curGallery.length; lbShow(); }
+});
+
+/* ══ CURSEUR z-index 9999 — visible partout ══ */
+const cRing=document.getElementById('cursor-ring');
+const cDot =document.getElementById('cursor-dot');
+let mX=window.innerWidth/2, mY=window.innerHeight/2, rX=mX, rY=mY, hovered=false;
+
+window.addEventListener('mousemove',e=>{
+    mX=e.clientX; mY=e.clientY;
+    cDot.style.transform=`translate(${mX-2.5}px,${mY-2.5}px)`;
+},{ passive:true });
+
+const lerp=(a,b,t)=>a+(b-a)*t;
+(function tick(){
+    const dx=mX-rX, dy=mY-rY;
+    if(Math.abs(dx)>0.4||Math.abs(dy)>0.4){
+        rX=lerp(rX,mX,0.12); rY=lerp(rY,mY,0.12);
+        cRing.style.transform=`translate(${rX-12}px,${rY-12}px)${hovered?' scale(1.55)':''}`;
+    }
+    requestAnimationFrame(tick);
+})();
+
+/* Soulèvement par proximité */
+const allCards=document.querySelectorAll('.card');
+window.addEventListener('mousemove',e=>{
+    allCards.forEach(card=>{
+        const r=card.getBoundingClientRect();
+        const dist=Math.hypot(e.clientX-(r.left+r.width/2),e.clientY-(r.top+r.height/2));
+        dist<150&&!card.matches(':hover')?card.classList.add('near'):card.classList.remove('near');
+    });
+},{ passive:true });
+
+const SEL='.card,.tag,.game-tag,#modal-close,.vtt-img-wrap,#lightbox-close,.lb-arrow';
+document.addEventListener('mouseover',e=>{
+    if(e.target.closest(SEL)){
+        hovered=true;
+        cRing.style.borderColor='rgba(255,25,25,0.82)';
+        cRing.style.boxShadow='0 0 9px rgba(255,0,0,0.30)';
+    }
+});
+document.addEventListener('mouseout',e=>{
+    if(e.target.closest(SEL)){
+        hovered=false;
+        cRing.style.borderColor='rgba(255,255,255,0.72)';
+        cRing.style.boxShadow='0 0 6px rgba(255,255,255,0.18)';
+    }
+});
+
+/* ══ FUMÉE PIXEL — canvas ══ */
+(function(){
+    const cv  = document.getElementById('smoke-canvas');
+    const ctx = cv.getContext('2d');
+    cv.style.cssText = 'position:fixed;top:0;left:0;pointer-events:none;z-index:9990;';
+
+    function resize(){ cv.width = window.innerWidth; cv.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize, {passive:true});
+
+    const pts = [];
+    let lx = -999, ly = -999;
+
+    window.addEventListener('mousemove', e => {
+        const spd = Math.hypot(e.clientX-lx, e.clientY-ly);
+        const n   = Math.min(Math.ceil(spd * 0.22), 5);
+        for(let i=0; i<n; i++){
+            pts.push({
+                x:  e.clientX + (Math.random()-.5)*5,
+                y:  e.clientY + (Math.random()-.5)*5,
+                vx: (Math.random()-.5)*0.5,
+                vy: -(Math.random()*1.0 + 0.4),
+                s:  Math.random()*2 + 1,        // taille 1–3px
+                a:  0.55 + Math.random()*0.20,  // opacité départ
+                d:  Math.random()*0.022 + 0.016 // vitesse disparition
+            });
+        }
+        lx=e.clientX; ly=e.clientY;
+    },{passive:true});
+
+    (function loop(){
+        ctx.clearRect(0,0,cv.width,cv.height);
+        for(let i=pts.length-1;i>=0;i--){
+            const p=pts[i];
+            p.x += p.vx; p.y += p.vy;
+            p.vx *= 0.96; p.vy *= 0.96;
+            p.a  -= p.d;
+            if(p.a<=0){pts.splice(i,1);continue;}
+            const sz = Math.max(p.s * (p.a/0.7), 0.5);
+            ctx.globalAlpha = Math.min(p.a, 1);
+            ctx.fillStyle = `rgb(${190+Math.floor(Math.random()*65)},0,0)`;
+            ctx.fillRect(Math.round(p.x), Math.round(p.y), Math.ceil(sz), Math.ceil(sz));
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(loop);
+    })();
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Koczarn — Rex Obscurae</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.cdnfonts.com/css/iceland-winterstorm');
+
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+    background: radial-gradient(circle at center, #0a0000 0%, #000000 100%);
+    cursor: none;
+    font-family: 'Iceland Winterstorm', serif;
+    color: #ffffff;
+}
+
+/* ── Curseur : simple cercle blanc fin + point blanc ── */
+#cursor-ring {
+    position: fixed;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.80);
+    pointer-events: none;
+    transform: translate(-50%,-50%);
+    z-index: 101;
+    box-shadow: 0 0 6px rgba(255,255,255,0.20);
+}
+
+#cursor-dot {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #fff;
+    pointer-events: none;
+    transform: translate(-50%,-50%);
+    z-index: 102;
+}
+
+/*
+  Halo de révélation des yeux :
+  — pas blanc éclatant, juste une zone sombre qui s'éclaircit légèrement
+  — mix-blend-mode: screen sur fond noir = révèle ce qu'il y a dessous
+  — couleur très sombre/rouge pour ne pas faire "ange"
+*/
+#cursor-reveal {
+    position: fixed;
+    width: 380px;
+    height: 380px;
+    border-radius: 50%;
+    pointer-events: none;
+    /* gradient chaud sombre : rouge très atténué vers transparent */
+    background: radial-gradient(circle,
+        rgba(180, 60, 20, 0.55) 0%,
+        rgba(120, 20,  5, 0.25) 35%,
+        rgba( 60,  5,  0, 0.08) 60%,
+        transparent 75%
+    );
+    transform: translate(-50%,-50%);
+    mix-blend-mode: screen;
+    z-index: 6;
+    pointer-events: none;
+}
+
+/* Bloc central */
+#core {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 60vw;
+    max-width: 600px;
+    height: auto;
+    background: rgba(10,0,0,0.35);
+    border-radius: 20px;
+    box-shadow: 0 0 60px rgba(255,0,0,0.05), inset 0 0 30px rgba(255,0,0,0.1);
+    backdrop-filter: blur(8px);
+    user-select: none;
+    z-index: 20;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+@keyframes breathe {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50%      { transform: translate(-50%, -50%) scale(1.05); }
+}
+
+@keyframes borderPulse {
+    0%,100% { box-shadow: 0 0 60px rgba(255,0,0,0.05), inset 0 0 30px rgba(255,0,0,0.10); }
+    50%     { box-shadow: 0 0 90px rgba(255,0,0,0.18), inset 0 0 50px rgba(255,0,0,0.18); }
+}
+
+#name {
+    font-size: clamp(40px, 12vw, 90px);
+    letter-spacing: 8px;
+    color: white;
+    transition: all 0.05s linear;
+}
+#subtitle {
+    color: #bbb;
+    font-size: clamp(14px, 3vw, 22px);
+    margin-top: -8px;
+    letter-spacing: 4px;
+}
+
+/* ── Bouton ENTER ── */
+#enter-btn {
+    display: inline-block;
+    margin-top: 28px;
+    font-family: 'Iceland Winterstorm', serif;
+    font-size: clamp(13px, 2vw, 17px);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-shadow:
+        0 0 6px rgba(255,255,255,0.9),
+        0 0 14px rgba(255,255,255,0.4),
+        0 0 28px rgba(255,255,255,0.15);
+    cursor: none;
+    text-decoration: none;
+    position: relative;
+    padding: 2px 0;
+    transition: text-shadow 0.4s ease, color 0.4s ease, font-size 0.4s cubic-bezier(0.22,1,0.36,1), letter-spacing 0.4s ease;
+}
+#enter-btn:hover {
+    font-size: clamp(17px, 2.7vw, 24px);
+    letter-spacing: 8px;
+    color: #fff;
+    text-shadow:
+        0 0 4px #fff,
+        0 0 12px #fff,
+        0 0 28px rgba(255,255,255,0.95),
+        0 0 55px rgba(255,255,255,0.55),
+        0 0 90px rgba(255,220,220,0.25);
+}
+
+/* points animés */
+#enter-dots span {
+    display: inline-block;
+    animation: dotPulse 1.4s ease-in-out infinite;
+    opacity: 0;
+    color: rgba(255,255,255,0.7);
+}
+#enter-dots span:nth-child(1){ animation-delay: 0s; }
+#enter-dots span:nth-child(2){ animation-delay: 0.28s; }
+#enter-dots span:nth-child(3){ animation-delay: 0.56s; }
+
+@keyframes dotPulse {
+    0%,100% { opacity: 0; transform: translateY(0); }
+    50%     { opacity: 1; transform: translateY(-2px); }
+}
+
+/* Yeux — très très légèrement visibles dans le noir (ombre/obscur) */
+.eye {
+    position: absolute;
+    pointer-events: none;
+    mix-blend-mode: lighten;
+    filter: brightness(0.07);  /* quasi noir, juste une ombre perceptible */
+    display: none;
+    z-index: 5;
+}
+</style>
+</head>
+<body>
+
+<div id="core">
+    <div id="name">KOCZARN</div>
+    <div id="subtitle">Rex Obscurae</div>
+    <a id="enter-btn" href="main.html">Enter <span id="enter-dots"><span>.</span><span>.</span><span>.</span></span></a>
+</div>
+
+<!-- Halo de révélation (ne suit PAS instantanément — trainée lente) -->
+<div id="cursor-reveal"></div>
+<!-- Anneau curseur (lag smooth moyen) -->
+<div id="cursor-ring"></div>
+<!-- Point curseur (instantané) -->
+<div id="cursor-dot"></div>
+
+<script>
+const nameEl        = document.getElementById('name');
+const core          = document.getElementById('core');
+const cursorRing    = document.getElementById('cursor-ring');
+const cursorDot     = document.getElementById('cursor-dot');
+const cursorReveal  = document.getElementById('cursor-reveal');
+
+let mouseX = window.innerWidth/2,  mouseY = window.innerHeight/2;
+let ringX  = mouseX, ringY  = mouseY;
+let revX   = mouseX, revY   = mouseY;
+
+window.addEventListener('mousemove', e => { mouseX=e.clientX; mouseY=e.clientY; });
+
+function lerp(a,b,t){ return a+(b-a)*t; }
+
+// ── Flicker du halo : géré par setTimeout pour être vraiment irrégulier ──
+let haloFlickerActive = false;
+let haloOpacity = 1;
+
+function scheduleFlick(){
+    if(!haloFlickerActive){ haloOpacity=1; return; }
+    // durée ON aléatoire : 20ms à 180ms
+    const onDur  = 20  + Math.random()*160;
+    // durée OFF aléatoire : 30ms à 400ms — très variable
+    const offDur = 30  + Math.random()*370;
+    // intensité du off : parfois juste dimmer, parfois quasi noir
+    const offVal = Math.random() < 0.4 ? 0.04 + Math.random()*0.12 : 0.3 + Math.random()*0.35;
+
+    haloOpacity = 1;
+    setTimeout(()=>{
+        if(!haloFlickerActive){ haloOpacity=1; return; }
+        haloOpacity = offVal;
+        setTimeout(()=>{
+            haloOpacity = 1;
+            // délai avant prochain flick : 80ms à 600ms
+            const next = 80 + Math.random()*520;
+            setTimeout(scheduleFlick, next);
+        }, onDur);
+    }, offDur);
+}
+
+(function animateCursor(){
+    cursorDot.style.left = mouseX+'px';
+    cursorDot.style.top  = mouseY+'px';
+
+    ringX = lerp(ringX, mouseX, 0.10);
+    ringY = lerp(ringY, mouseY, 0.10);
+    cursorRing.style.left = ringX+'px';
+    cursorRing.style.top  = ringY+'px';
+
+    revX = lerp(revX, mouseX, 0.055);
+    revY = lerp(revY, mouseY, 0.055);
+    cursorReveal.style.left    = revX+'px';
+    cursorReveal.style.top     = revY+'px';
+    cursorReveal.style.opacity = haloOpacity;
+
+    requestAnimationFrame(animateCursor);
+})();
+
+/* ── PHASE 1 : délai ── */
+setTimeout(startLetterFlashes, 1000);
+
+/* ── PHASE 2 : flash lettres ── */
+function startLetterFlashes(){
+    const letters = nameEl.textContent.split('');
+    nameEl.innerHTML = letters.map(l=>`<span class="char">${l}</span>`).join('');
+    const spans = [...document.querySelectorAll('.char')];
+    let flashes = 0;
+    const iv = setInterval(()=>{
+        spans.forEach(s=>{
+            const red = Math.random()>0.5;
+            s.style.color = red?'#ff0000':'#fff';
+            s.style.textShadow = red
+                ?'0 0 8px #ff0000,0 0 16px #ff0000'
+                :'none';
+        });
+        if(++flashes>10){
+            clearInterval(iv);
+            spans.forEach(s=>{
+                s.style.color='#ff0000';
+                s.style.textShadow='0 0 12px #ff0000,0 0 25px #ff0000';
+            });
+            startBreathing();
+            generateEyes();
+            startTextGlitch();
+        }
+    },150);
+}
+
+/* ── PHASE 3 : respiration ── */
+function startBreathing(){
+    core.style.animation='breathe 4s ease-in-out infinite, borderPulse 4s ease-in-out infinite';
+}
+
+/* ── PHASE 4 : yeux ──
+   Taille : 1/6 de la largeur (~160–200px) — visibles mais pas énormes
+   Luminosité : 0 par défaut, UNIQUEMENT le mix-blend-mode screen + halo révèle
+*/
+const eyes     = [];
+const eyeCount = 45;
+const eyeSize  = Math.max(Math.round(window.innerWidth / 10), 72);
+const minDist  = eyeSize + 8;
+
+function generatePositions(count){
+    const pos=[]; let tries=0;
+    const cr=core.getBoundingClientRect();
+    while(pos.length<count && tries<5000){
+        const x=Math.random()*(window.innerWidth-eyeSize);
+        const y=Math.random()*(window.innerHeight-eyeSize);
+        let ok=true;
+        for(const p of pos) if(Math.hypot(p.x-x,p.y-y)<minDist){ok=false;break;}
+        if(x+eyeSize>cr.left && x<cr.right && y+eyeSize>cr.top && y<cr.bottom) ok=false;
+        if(ok) pos.push({x,y});
+        tries++;
+    }
+    return pos;
+}
+
+function generateEyes(){
+    generatePositions(eyeCount).forEach(p=>{
+        const img=document.createElement('img');
+        img.src='./images/yeux.gif';
+        img.className='eye';
+        img.style.width=eyeSize+'px';
+        img.style.height=eyeSize+'px';
+        img.style.left=p.x+'px';
+        img.style.top=p.y+'px';
+        document.body.appendChild(img);
+        img.style.display='block';
+        eyes.push({
+            el:img, x:p.x, y:p.y,
+            sx:(Math.random()-.5)*.4,
+            sy:(Math.random()-.5)*.4,
+            tick:Math.random()*100
+        });
+    });
+    requestAnimationFrame(animateEyes);
+}
+
+function animateEyes(){
+    const cr  = core.getBoundingClientRect();
+    const now = performance.now();
+    let anyEyeUnderCursor = false;
+    let anyFrozen = eyes.some(e => e.state === 'frozen');
+
+    eyes.forEach(eye=>{
+        const mdx = eye.x+eyeSize/2 - mouseX;
+        const mdy = eye.y+eyeSize/2 - mouseY;
+        const mouseDist = Math.hypot(mdx, mdy);
+
+        const hdx = eye.x+eyeSize/2 - revX;
+        const hdy = eye.y+eyeSize/2 - revY;
+        const haloDist = Math.hypot(hdx, hdy);
+
+        // Souris directement sur l'oeil → flicker
+        if(mouseDist < eyeSize * 0.75) anyEyeUnderCursor = true;
+
+        /* ── MACHINE D'ÉTAT : idle | frozen | fleeing ── */
+        if(!eye.state) eye.state = 'idle';
+
+        if(eye.state === 'idle'){
+            // Déclenchement freeze : souris entre dans l'oeil — UN SEUL à la fois
+            if(mouseDist < eyeSize * 0.8 && !eye.frozenDone && !anyFrozen){
+                anyFrozen       = true;
+                eye.state       = 'frozen';
+                eye.freezeStart = now;
+                const fa = Math.atan2(mdy, mdx);
+                eye.jumpVx = Math.cos(fa) * 18;  // vitesse de fuite élevée
+                eye.jumpVy = Math.sin(fa) * 18;
+                eye.sx = 0; eye.sy = 0;           // stop net
+            } else {
+                // Drift très léger — quasi immobiles sauf friction résiduelle
+                eye.sx *= 0.96;
+                eye.sy *= 0.96;
+
+                // Fuite douce du halo (trainée)
+                if(haloDist < 280){
+                    const a = Math.atan2(hdy, hdx);
+                    const f = (280 - haloDist) / 60;
+                    eye.sx += Math.cos(a)*f*0.08;
+                    eye.sy += Math.sin(a)*f*0.08;
+                }
+
+                eye.x += eye.sx;
+                eye.y += eye.sy;
+
+                // Reset frozenDone une fois loin
+                if(mouseDist > eyeSize * 2) eye.frozenDone = false;
+
+                eye.el.style.left = eye.x+'px';
+                eye.el.style.top  = eye.y+'px';
+            }
+
+        } else if(eye.state === 'frozen'){
+            anyFrozen = true;
+            const elapsed = now - eye.freezeStart;
+            // FIGÉ 500ms — tremble très légèrement sur place
+            if(elapsed < 500){
+                eye.el.style.left = (eye.x + (Math.random()-0.5)*1.5)+'px';
+                eye.el.style.top  = (eye.y + (Math.random()-0.5)*1.5)+'px';
+            } else {
+                // Repart à toute vitesse
+                eye.state      = 'fleeing';
+                eye.frozenDone = true;
+                eye.sx = eye.jumpVx;
+                eye.sy = eye.jumpVy;
+            }
+
+        } else if(eye.state === 'fleeing'){
+            // Décélération progressive
+            eye.sx *= 0.92;
+            eye.sy *= 0.92;
+            eye.x  += eye.sx;
+            eye.y  += eye.sy;
+
+            // Retour idle quand presque arrêté
+            if(Math.hypot(eye.sx, eye.sy) < 0.3) eye.state = 'idle';
+
+            eye.el.style.left = eye.x+'px';
+            eye.el.style.top  = eye.y+'px';
+        }
+
+        /* Rebonds murs */
+        if(eye.x<=0 || eye.x>=window.innerWidth-eyeSize)  eye.sx*=-1;
+        if(eye.y<=0 || eye.y>=window.innerHeight-eyeSize) eye.sy*=-1;
+        eye.x = Math.max(0, Math.min(window.innerWidth-eyeSize,  eye.x));
+        eye.y = Math.max(0, Math.min(window.innerHeight-eyeSize, eye.y));
+
+        /* Rebonds bloc central */
+        if(eye.state !== 'frozen' &&
+           eye.x+eyeSize>cr.left && eye.x<cr.right &&
+           eye.y+eyeSize>cr.top  && eye.y<cr.bottom){
+            const cx=eye.x+eyeSize/2, cy=eye.y+eyeSize/2;
+            (cx<cr.left||cx>cr.right) ? eye.sx*=-1 : eye.sy*=-1;
+        }
+
+        /* Luminosité */
+        const halfHalo = 190;
+        let bright = haloDist < halfHalo
+            ? 0.13 + (1 - haloDist/halfHalo)*0.42
+            : 0.13;
+        eye.el.style.filter = `brightness(${bright.toFixed(3)})`;
+    });
+
+    // Démarre/arrête le flicker selon présence d'un oeil sous le curseur
+    if(anyEyeUnderCursor && !haloFlickerActive){
+        haloFlickerActive = true;
+        scheduleFlick();
+    } else if(!anyEyeUnderCursor && haloFlickerActive){
+        haloFlickerActive = false;
+        haloOpacity = 1;
+    }
+
+    requestAnimationFrame(animateEyes);
+}
+
+/* ── ENTER : fondu + redirect ── */
+document.getElementById('enter-btn').addEventListener('click', function(e){
+    e.preventDefault();
+    // fondu de toute la page + yeux
+    document.body.style.transition='opacity 0.9s ease';
+    document.body.style.opacity='0';
+    setTimeout(()=>{ window.location.href='main.html'; }, 920);
+});
+
+/* ── PHASE 5 : glitch texte ── */
+const glitchChars=['@','Ø','Λ','Я','Ƶ','†','Σ','Ξ','Ω','§','¤','⚡','█','▒','▓','#','∴'];
+function startTextGlitch(){
+    const orig="KOCZARN";
+    function cycle(){
+        let arr=orig.split('');
+        const n=Math.floor(1+Math.random()*2);
+        for(let i=0;i<n;i++) arr[Math.floor(Math.random()*arr.length)]=glitchChars[Math.floor(Math.random()*glitchChars.length)];
+        nameEl.innerHTML=arr.join('');
+        const s=0.5+Math.random()*1.5;
+        nameEl.style.textShadow=`0 0 ${8*s}px #ff0000,0 0 ${16*s}px #ff0000`;
+        nameEl.style.opacity=(0.9+Math.random()*0.1).toFixed(2);
+        nameEl.style.transform=`translateX(${(Math.random()-.5)*5}px)`;
+        setTimeout(()=>{
+            nameEl.textContent=orig;
+            nameEl.style.textShadow='0 0 12px #ff0000,0 0 25px #ff0000';
+            nameEl.style.transform='translateX(0)';
+        }, 100+Math.random()*200);
+        setTimeout(cycle, 800+Math.random()*1800);
+    }
+    cycle();
+}
+</script>
+</body>
+</html>
